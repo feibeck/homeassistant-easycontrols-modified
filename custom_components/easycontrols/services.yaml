@@ -18,5 +18,5 @@ bypass_control:
       description: Name of the entity
       example: "fan.helios"
     setting:
-      descripton: "1 for bypass open, 0 for bypass closed"
+      description: "1 for bypass open, 0 for bypass closed"
       example: 0
