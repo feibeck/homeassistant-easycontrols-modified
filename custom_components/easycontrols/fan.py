@@ -137,6 +137,12 @@ class EasyControlFanDevice(FanEntity):
         self._controller.set_variable(
             VARIABLE_PARTY_MODE, 1, "{:d}"
         )
+    
+    def bypass_control(self, setting):
+        if setting == 0:
+            self._controller.set_variable("v01035", 40, "{:d}")
+        else:
+            self._controller.set_variable("v01035", 10, "{:d}")
 
     async def async_update(self):
         self._supply_air_rpm = self._controller.get_variable(VARIABLE_SUPPLY_AIR_RPM, 8, float)
@@ -200,6 +206,10 @@ async def async_setup_entry(hass, entry, async_add_entities):
         duration = call.data.get('duration', 60)
         speed = call.data.get('speed', 'high')
         fan.start_party_mode(speed, duration)
+
+    def handle_bypass_control(call):
+        setting = call.data.get('setting', 0)
+        fan.bypass_control(setting)
 
     hass.services.async_register(DOMAIN, "party_mode", handle_party_mode)
 
