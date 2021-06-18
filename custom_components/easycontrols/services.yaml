@@ -64,3 +64,12 @@ stop_party_mode:
           filter:
             integration: easycontrols
             domain: fan
+bypass_control:
+  description: Manually open or close bypass
+  fields:
+    entity_id:
+      description: Name of the entity
+      example: "fan.helios"
+    setting:
+      description: "1 for bypass open, 0 for bypass closed"
+      example: 0

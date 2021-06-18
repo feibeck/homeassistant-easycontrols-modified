@@ -289,6 +289,12 @@ class EasyControlsFanDevice(FanEntity):
         await self._coordinator.set_variable(VARIABLE_PARTY_MODE, False)
         self._schedule_variable_updates()
 
+    def bypass_control(self, setting):
+        if setting == 0:
+            await self._controller.set_variable("v01035", 40, "{:d}")
+        else:
+            await self._controller.set_variable("v01035", 10, "{:d}")
+
     @classmethod
     def speed_to_fan_stage(cls, speed: str) -> int:
         """
@@ -383,7 +389,12 @@ async def async_setup_entry(
         else:
             await fan.start_party_mode(speed, duration)
 
+    def handle_bypass_control(call):
+        setting = call.data.get('setting', 0)
+        fan.bypass_control(setting)
+
     hass.services.async_register(DOMAIN, "party_mode", handle_party_mode)
+    hass.services.async_register(DOMAIN, "bypass_control", handle_bypass_control)
 
     async def handle_start_party_mode(call: ServiceCall) -> None:
         duration = call.data.get("duration", None)
@@ -395,5 +406,11 @@ async def async_setup_entry(
 
     hass.services.async_register(DOMAIN, SERVICE_START_PARTY_MODE, handle_start_party_mode)
     hass.services.async_register(DOMAIN, SERVICE_STOP_PARTY_MODE, handle_stop_party_mode)
+
+    async def handle_bypass_control(call):
+        setting = call.data.get('setting', 0)
+        await fan.bypass_control(setting)
+
+    hass.services.async_register(DOMAIN, "bypass_control", handle_bypass_control)
 
     _LOGGER.info("Setting up Helios EasyControls fan device completed.")
