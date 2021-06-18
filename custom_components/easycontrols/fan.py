@@ -212,5 +212,6 @@ async def async_setup_entry(hass, entry, async_add_entities):
         fan.bypass_control(setting)
 
     hass.services.async_register(DOMAIN, "party_mode", handle_party_mode)
+    hass.services.async_register(DOMAIN, "bypass_control", handle_bypass_control)
 
     _LOGGER.info("Setting up Helios EasyControls fan device completed.")
