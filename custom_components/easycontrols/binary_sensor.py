@@ -1,88 +1,117 @@
-from .const import (
-    CONTROLLER,
-    DOMAIN,
-    VARIABLE_BYPASS,
-    VARIABLE_INFOS,
-    INFO_FILTER_CHANGE_FLAG
-)
-
-from .threadsafe_controller import (ThreadSafeController)
-from homeassistant.const import (CONF_HOST, CONF_NAME)
-from homeassistant.helpers.entity import (Entity)
-from homeassistant.helpers import device_registry as dr
-
+'''
+The binary sensor module for Helios Easy Controls integration.
+'''
 import logging
+
+from homeassistant.components.binary_sensor import (
+    DEVICE_CLASS_OPENING, DEVICE_CLASS_PROBLEM, BinarySensorEntity,
+    BinarySensorEntityDescription)
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import CONF_MAC, ENTITY_CATEGORY_DIAGNOSTIC
+from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.typing import HomeAssistantType
+
+from . import get_controller, get_device_info
+from .const import VARIABLE_BYPASS, VARIABLE_INFO_FILTER_CHANGE
+from .modbus_variable import BoolModbusVariable
+from .controller import Controller
 
 _LOGGER = logging.getLogger(__name__)
 
-class EasyControlBinarySensor(Entity):
-    def __init__(self, controller: ThreadSafeController, variable: str, size: int, converter, name: str, device_name: str, icon: str, device_class:str):
+
+class EasyControlBinarySensor(BinarySensorEntity):
+    '''
+    Represents a ModBus variable as a binary sensor.
+    '''
+
+    def __init__(
+        self,
+        controller: Controller,
+        variable: BoolModbusVariable,
+        description: BinarySensorEntityDescription
+    ):
+        '''
+        Initialize a new instance of EasyControlsBinarySensor class.
+
+        Parameters
+        ----------
+        controller: Controller
+            The thread safe Helios Easy Controls controller.
+        variable: BoolModbusVariable
+            The Modbus variable.
+        description: homeassistant.components.binary_sensor.BinarySensorEntityDescription
+            The binary sensor description.
+        '''
+        self.entity_description = description
         self._controller = controller
         self._variable = variable
-        self._converter = converter
-        self._size = size
-        self._name = name
-        self._device_name = device_name
-        self._icon = icon
-        self._device_class = device_class
-        self._state = "unavailable"
+        self._attr_unique_id = self._controller.mac + self.name
 
     async def async_update(self):
-        value = self._controller.get_variable(
-            self._variable, self._size, self._converter)
-        self._state = "unavailable" if value is None else value
+        '''
+        Updates the sensor value.
+        '''
+        self._attr_is_on = await self._controller.get_variable(self._variable)
+        self._attr_available = self._attr_is_on is not None
 
     @property
-    def device_class(self):
-        return self._device_class
+    def device_info(self) -> DeviceInfo:
+        '''
+        Gets the device information.
+        '''
+        return get_device_info(self._controller)
 
-    @property
-    def unique_id(self):
-        return self._controller.mac + self._name
 
-    @property
-    def device_info(self):
-        return {
-            "connections": {(dr.CONNECTION_NETWORK_MAC, self._controller.mac)},
-            "identifiers": {(DOMAIN, self._controller.serial_number)},
-            "name": self._device_name,
-            "manufacturer": "Helios",
-            "model": self._controller.model,
-            "sw_version": self._controller.version
-        }
+async def async_setup_entry(
+    hass: HomeAssistantType,
+    config_entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback
+):
+    '''
+    Setup of Helios Easy Controls sensors for the specified config_entry.
 
-    @property
-    def should_poll(self):
-        return True
+    Parameters
+    ----------
+    hass: homeassistant.helpers.typing.HomeAssistantType
+        The Home Assistant instance.
+    config_entry: homeassistant.helpers.typing.ConfigEntry
+        The config entry which is used to create sensors.
+    async_add_entities: homeassistant.helpers.entity_platform.AddEntitiesCallback
+        The callback which can be used to add new entities to Home Assistant.
 
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
+    Returns
+    -------
+    bool
+        The value indicates whether the setup succeeded.
+    '''
+    _LOGGER.info('Setting up Helios EasyControls binary sensors.')
 
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def icon(self):
-        """Return the icon of the sensor."""
-        return self._icon
-
-async def async_setup_entry(hass, entry, async_add_entities):
-    _LOGGER.info("Setting up Helios EasyControls binary sensors.")
-
-    name = entry.data[CONF_NAME]
-    controller = hass.data[DOMAIN][CONTROLLER][entry.data[CONF_HOST]]
+    controller = get_controller(hass, config_entry.data[CONF_MAC])
 
     async_add_entities([
         EasyControlBinarySensor(
-            controller, VARIABLE_BYPASS, 8, lambda x : "on" if int(x) == 1 else "off", f"{name} bypass", name, "mdi:delta", "opening"
+            controller,
+            VARIABLE_BYPASS,
+            BinarySensorEntityDescription(
+                key="bypass",
+                name=f'{controller.device_name} bypass',
+                icon='mdi:delta',
+                device_class=DEVICE_CLASS_OPENING,
+                entity_category=ENTITY_CATEGORY_DIAGNOSTIC
+            ),
         ),
         EasyControlBinarySensor(
-            controller, VARIABLE_INFOS, 32, lambda x : "on" if (int(x) & INFO_FILTER_CHANGE_FLAG) == INFO_FILTER_CHANGE_FLAG else "off", f"{name} filter change", name, "mdi:air-filter", None
+            controller,
+            VARIABLE_INFO_FILTER_CHANGE,
+            BinarySensorEntityDescription(
+                key="filter_change",
+                name=f'{controller.device_name} filter change',
+                icon='mdi:air-filter',
+                device_class=DEVICE_CLASS_PROBLEM,
+                entity_category=ENTITY_CATEGORY_DIAGNOSTIC
+            )
         )
     ])
 
-    _LOGGER.info("Setting up Helios EasyControls binary sensors completed.")
+    _LOGGER.info('Setting up Helios EasyControls binary sensors completed.')
