@@ -38,4 +38,3 @@ bypass_control:
     setting:
       description: "1 for bypass open, 0 for bypass closed"
       example: 0
-      example: 0
