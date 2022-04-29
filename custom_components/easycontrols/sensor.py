@@ -8,9 +8,8 @@ from homeassistant.components.sensor import (STATE_CLASS_MEASUREMENT,
                                              SensorEntityDescription)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (CONF_MAC, DEVICE_CLASS_HUMIDITY,
-                                 DEVICE_CLASS_TEMPERATURE,
-                                 ENTITY_CATEGORY_DIAGNOSTIC)
-from homeassistant.helpers.entity import DeviceInfo
+                                 DEVICE_CLASS_TEMPERATURE)
+from homeassistant.helpers.entity import DeviceInfo, EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import HomeAssistantType
 
@@ -58,7 +57,7 @@ class EasyControlsAirFlowRateSensor(SensorEntity):
             state_class=STATE_CLASS_MEASUREMENT,
             icon='mdi:air-filter',
             native_unit_of_measurement='m³/h',
-            entity_category=ENTITY_CATEGORY_DIAGNOSTIC
+            entity_category=EntityCategory.DIAGNOSTIC
         )
         self._controller = controller
         self._attr_unique_id = self._controller.mac + self.name
@@ -106,7 +105,7 @@ class EasyControlsEfficiencySensor(SensorEntity):
             state_class=STATE_CLASS_MEASUREMENT,
             icon='mdi:percent',
             native_unit_of_measurement='%',
-            entity_category=ENTITY_CATEGORY_DIAGNOSTIC
+            entity_category=EntityCategory.DIAGNOSTIC
         )
         self._controller = controller
         self._attr_unique_id = self._controller.mac + self.name
@@ -202,7 +201,7 @@ class EasyControlFlagSensor(SensorEntity):
         '''
         if value is None:
             return None
-        string = ''
+        string: str = ''
         if value != 0:
             for item in self._flags.items():
                 has_flag = (item[0] & value) == item[0]
@@ -210,6 +209,9 @@ class EasyControlFlagSensor(SensorEntity):
                     if string != '':
                         string += '\n'
                     string += item[1]
+        else:
+            string = '-'
+
         return string
 
     @property
@@ -288,7 +290,7 @@ class EasyControlsVersionSensor(SensorEntity):
             key='version',
             name=name,
             icon='mdi:new-box',
-            entity_category=ENTITY_CATEGORY_DIAGNOSTIC
+            entity_category=EntityCategory.DIAGNOSTIC
         )
 
         self._controller = controller
@@ -349,7 +351,7 @@ async def async_setup_entry(
                 icon='mdi:air-conditioner',
                 native_unit_of_measurement='%',
                 state_class=STATE_CLASS_MEASUREMENT,
-                entity_category=ENTITY_CATEGORY_DIAGNOSTIC
+                entity_category=EntityCategory.DIAGNOSTIC
             )
         ),
         EasyControlsSensor(
@@ -361,7 +363,7 @@ async def async_setup_entry(
                 icon='mdi:air-conditioner',
                 native_unit_of_measurement=' ',
                 state_class=STATE_CLASS_MEASUREMENT,
-                entity_category=ENTITY_CATEGORY_DIAGNOSTIC
+                entity_category=EntityCategory.DIAGNOSTIC
             )
         ),
         EasyControlsSensor(
@@ -373,7 +375,7 @@ async def async_setup_entry(
                 icon='mdi:air-conditioner',
                 native_unit_of_measurement=' ',
                 state_class=STATE_CLASS_MEASUREMENT,
-                entity_category=ENTITY_CATEGORY_DIAGNOSTIC
+                entity_category=EntityCategory.DIAGNOSTIC
             )
         ),
         EasyControlsSensor(
@@ -385,7 +387,7 @@ async def async_setup_entry(
                 icon='mdi:air-conditioner',
                 native_unit_of_measurement=' ',
                 state_class=STATE_CLASS_MEASUREMENT,
-                entity_category=ENTITY_CATEGORY_DIAGNOSTIC
+                entity_category=EntityCategory.DIAGNOSTIC
             )
         ),
         EasyControlsSensor(
@@ -398,7 +400,7 @@ async def async_setup_entry(
                 native_unit_of_measurement='°C',
                 device_class=DEVICE_CLASS_TEMPERATURE,
                 state_class=STATE_CLASS_MEASUREMENT,
-                entity_category=ENTITY_CATEGORY_DIAGNOSTIC
+                entity_category=EntityCategory.DIAGNOSTIC
             )
         ),
         EasyControlsSensor(
@@ -411,7 +413,7 @@ async def async_setup_entry(
                 native_unit_of_measurement='°C',
                 device_class=DEVICE_CLASS_TEMPERATURE,
                 state_class=STATE_CLASS_MEASUREMENT,
-                entity_category=ENTITY_CATEGORY_DIAGNOSTIC
+                entity_category=EntityCategory.DIAGNOSTIC
             )
         ),
         EasyControlsSensor(
@@ -424,7 +426,7 @@ async def async_setup_entry(
                 native_unit_of_measurement='°C',
                 device_class=DEVICE_CLASS_TEMPERATURE,
                 state_class=STATE_CLASS_MEASUREMENT,
-                entity_category=ENTITY_CATEGORY_DIAGNOSTIC
+                entity_category=EntityCategory.DIAGNOSTIC
             )
         ),
         EasyControlsSensor(
@@ -437,7 +439,7 @@ async def async_setup_entry(
                 native_unit_of_measurement='°C',
                 device_class=DEVICE_CLASS_TEMPERATURE,
                 state_class=STATE_CLASS_MEASUREMENT,
-                entity_category=ENTITY_CATEGORY_DIAGNOSTIC
+                entity_category=EntityCategory.DIAGNOSTIC
             )
         ),
         EasyControlsSensor(
@@ -449,7 +451,7 @@ async def async_setup_entry(
                 icon='mdi:rotate-3d-variant',
                 native_unit_of_measurement='rpm',
                 state_class=STATE_CLASS_MEASUREMENT,
-                entity_category=ENTITY_CATEGORY_DIAGNOSTIC
+                entity_category=EntityCategory.DIAGNOSTIC
             )
         ),
         EasyControlsSensor(
@@ -461,7 +463,7 @@ async def async_setup_entry(
                 icon='mdi:rotate-3d-variant',
                 native_unit_of_measurement='rpm',
                 state_class=STATE_CLASS_MEASUREMENT,
-                entity_category=ENTITY_CATEGORY_DIAGNOSTIC
+                entity_category=EntityCategory.DIAGNOSTIC
             )
         ),
         EasyControlsSensor(
@@ -474,7 +476,7 @@ async def async_setup_entry(
                 native_unit_of_measurement='%',
                 device_class=DEVICE_CLASS_HUMIDITY,
                 state_class=STATE_CLASS_MEASUREMENT,
-                entity_category=ENTITY_CATEGORY_DIAGNOSTIC
+                entity_category=EntityCategory.DIAGNOSTIC
             )
         ),
         EasyControlsSensor(
@@ -485,7 +487,7 @@ async def async_setup_entry(
                 name=f'{controller.device_name} party mode remaining time',
                 icon='mdi:clock',
                 native_unit_of_measurement='min',
-                entity_category=ENTITY_CATEGORY_DIAGNOSTIC
+                entity_category=EntityCategory.DIAGNOSTIC
             )
         ),
         EasyControlsSensor(
@@ -497,7 +499,7 @@ async def async_setup_entry(
                 icon='mdi:history',
                 native_unit_of_measurement='h',
                 state_class=STATE_CLASS_TOTAL_INCREASING,
-                entity_category=ENTITY_CATEGORY_DIAGNOSTIC
+                entity_category=EntityCategory.DIAGNOSTIC
             )
         ),
         EasyControlsSensor(
@@ -509,7 +511,7 @@ async def async_setup_entry(
                 icon='mdi:history',
                 native_unit_of_measurement='h',
                 state_class=STATE_CLASS_TOTAL_INCREASING,
-                entity_category=ENTITY_CATEGORY_DIAGNOSTIC
+                entity_category=EntityCategory.DIAGNOSTIC
             )
         ),
         EasyControlsSensor(
@@ -521,7 +523,7 @@ async def async_setup_entry(
                 icon='mdi:history',
                 native_unit_of_measurement='h',
                 state_class=STATE_CLASS_TOTAL_INCREASING,
-                entity_category=ENTITY_CATEGORY_DIAGNOSTIC
+                entity_category=EntityCategory.DIAGNOSTIC
             )
         ),
         EasyControlsSensor(
@@ -533,7 +535,7 @@ async def async_setup_entry(
                 icon='mdi:thermometer-lines',
                 native_unit_of_measurement='%',
                 state_class=STATE_CLASS_MEASUREMENT,
-                entity_category=ENTITY_CATEGORY_DIAGNOSTIC
+                entity_category=EntityCategory.DIAGNOSTIC
             )
         ),
         EasyControlsSensor(
@@ -545,7 +547,7 @@ async def async_setup_entry(
                 icon='mdi:history',
                 native_unit_of_measurement='h',
                 state_class=STATE_CLASS_TOTAL_INCREASING,
-                entity_category=ENTITY_CATEGORY_DIAGNOSTIC
+                entity_category=EntityCategory.DIAGNOSTIC
             )
         ),
         EasyControlsSensor(
@@ -557,7 +559,7 @@ async def async_setup_entry(
                 icon='mdi:thermometer-lines',
                 native_unit_of_measurement='%',
                 state_class=STATE_CLASS_MEASUREMENT,
-                entity_category=ENTITY_CATEGORY_DIAGNOSTIC
+                entity_category=EntityCategory.DIAGNOSTIC
             )
         ),
         EasyControlFlagSensor(
@@ -568,7 +570,7 @@ async def async_setup_entry(
                 key='ERRORS',
                 name=f'{controller.device_name} errors',
                 icon='mdi:alert-circle',
-                entity_category=ENTITY_CATEGORY_DIAGNOSTIC
+                entity_category=EntityCategory.DIAGNOSTIC
             )
         ),
         EasyControlFlagSensor(
@@ -579,7 +581,7 @@ async def async_setup_entry(
                 key='WARNINGS',
                 name=f'{controller.device_name} warnings',
                 icon='mdi:alert-circle-outline',
-                entity_category=ENTITY_CATEGORY_DIAGNOSTIC
+                entity_category=EntityCategory.DIAGNOSTIC
             )
         ),
         EasyControlFlagSensor(
@@ -590,7 +592,7 @@ async def async_setup_entry(
                 key='INFORMATION',
                 name=f'{controller.device_name} information',
                 icon='mdi:information-outline',
-                entity_category=ENTITY_CATEGORY_DIAGNOSTIC
+                entity_category=EntityCategory.DIAGNOSTIC
             )
         ),
         EasyControlsAirFlowRateSensor(
