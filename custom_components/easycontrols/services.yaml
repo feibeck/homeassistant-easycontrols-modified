@@ -65,11 +65,51 @@ stop_party_mode:
             integration: easycontrols
             domain: fan
 bypass_control:
+  name: Bypass Control
   description: Manually open or close bypass
   fields:
     entity_id:
-      description: Name of the entity
+      name: "Helios Device"
+      description: "Device to set the bypass control"      
       example: "fan.helios"
+      default: "fan.helios"
+      required: true
+      selector:
+        entity:
+          filter:
+            integration: easycontrols
+            domain: fan
     setting:
+      name: "Setting"
       description: "1 for bypass open, 0 for bypass closed"
       example: 0
+bypass_open:
+  name: Open Bypass
+  description: Manually open bypass
+  fields:
+    entity_id:
+      name: "Helios Device"
+      description: "Device to set the bypass control"      
+      example: "fan.helios"
+      default: "fan.helios"
+      required: true
+      selector:
+        entity:
+          filter:
+            integration: easycontrols
+            domain: fan
+bypass_close:
+  name: Close Bypass
+  description: Manually close bypass
+  fields:
+    entity_id:
+      name: "Helios Device"
+      description: "Device to set the bypass control"      
+      example: "fan.helios"
+      default: "fan.helios"
+      required: true
+      selector:
+        entity:
+          filter:
+            integration: easycontrols
+            domain: fan            

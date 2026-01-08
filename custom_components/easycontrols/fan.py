@@ -296,6 +296,14 @@ class EasyControlsFanDevice(FanEntity):
         else:
             await self._controller.set_variable("v01035", 10, "{:d}")
 
+    async def bypass_open(self) -> None:
+        """Opens the bypass by setting low temperature."""
+        await self._controller.set_variable("v01035", 10, "{:d}")
+
+    async def bypass_close(self) -> None:
+        """Closes the bypass by setting high temperature."""
+        await self._controller.set_variable("v01035", 40, "{:d}")
+
     @classmethod
     def speed_to_fan_stage(cls, speed: str) -> int:
         """
@@ -407,6 +415,14 @@ async def async_setup_entry(
         setting = call.data.get("setting", 0)
         await fan.bypass_control(setting)
 
+    async def handle_bypass_open(call: ServiceCall) -> None:  # noqa: ARG001
+        await fan.bypass_open()
+
+    async def handle_bypass_close(call: ServiceCall) -> None:  # noqa: ARG001
+        await fan.bypass_close()
+
     hass.services.async_register(DOMAIN, "bypass_control", handle_bypass_control)
+    hass.services.async_register(DOMAIN, "bypass_open", handle_bypass_open)
+    hass.services.async_register(DOMAIN, "bypass_close", handle_bypass_close)
 
     _LOGGER.info("Setting up Helios EasyControls fan device completed.")
