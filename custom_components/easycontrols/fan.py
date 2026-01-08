@@ -389,10 +389,6 @@ async def async_setup_entry(
         else:
             await fan.start_party_mode(speed, duration)
 
-    def handle_bypass_control(call):
-        setting = call.data.get('setting', 0)
-        fan.bypass_control(setting)
-
     hass.services.async_register(DOMAIN, "party_mode", handle_party_mode)
     hass.services.async_register(DOMAIN, "bypass_control", handle_bypass_control)
 
@@ -407,8 +403,8 @@ async def async_setup_entry(
     hass.services.async_register(DOMAIN, SERVICE_START_PARTY_MODE, handle_start_party_mode)
     hass.services.async_register(DOMAIN, SERVICE_STOP_PARTY_MODE, handle_stop_party_mode)
 
-    async def handle_bypass_control(call):
-        setting = call.data.get('setting', 0)
+    async def handle_bypass_control(call: ServiceCall) -> None:
+        setting = call.data.get("setting", 0)
         await fan.bypass_control(setting)
 
     hass.services.async_register(DOMAIN, "bypass_control", handle_bypass_control)
