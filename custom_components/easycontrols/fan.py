@@ -289,7 +289,8 @@ class EasyControlsFanDevice(FanEntity):
         await self._coordinator.set_variable(VARIABLE_PARTY_MODE, False)
         self._schedule_variable_updates()
 
-    def bypass_control(self, setting):
+    async def bypass_control(self, setting: int) -> None:
+        """Sets the bypass control setting."""
         if setting == 0:
             await self._controller.set_variable("v01035", 40, "{:d}")
         else:
@@ -390,7 +391,6 @@ async def async_setup_entry(
             await fan.start_party_mode(speed, duration)
 
     hass.services.async_register(DOMAIN, "party_mode", handle_party_mode)
-    hass.services.async_register(DOMAIN, "bypass_control", handle_bypass_control)
 
     async def handle_start_party_mode(call: ServiceCall) -> None:
         duration = call.data.get("duration", None)
