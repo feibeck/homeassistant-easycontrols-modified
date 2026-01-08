@@ -29,8 +29,11 @@ from custom_components.easycontrols.const import (
     PRESET_AUTO,
     PRESET_PARTY,
     PRESET_STANDBY,
+    SERVICE_CLOSE_BYPASS,
+    SERVICE_OPEN_BYPASS,
     SERVICE_START_PARTY_MODE,
     SERVICE_STOP_PARTY_MODE,
+    VARIABLE_BYPASS_EXTRACT_AIR_TEMPERATURE,
     VARIABLE_EXTRACT_AIR_FAN_STAGE,
     VARIABLE_EXTRACT_AIR_RPM,
     VARIABLE_FAN_STAGE,
@@ -53,6 +56,9 @@ SPEED_BASIC_VENTILATION = "basic"
 SPEED_RATED_VENTILATION = "rated"
 SPEED_INTENSIVE_VENTILATION = "intensive"
 SPEED_MAXIMUM_FAN_SPEED = "maximum"
+
+BYPASS_TEMPERATURE_LOW = 10
+BYPASS_TEMPERATURE_HIGH = 40
 
 ORDERED_NAMED_FAN_SPEEDS = [
     SPEED_BASIC_VENTILATION,
@@ -291,11 +297,15 @@ class EasyControlsFanDevice(FanEntity):
 
     async def bypass_open(self) -> None:
         """Opens the bypass by setting low temperature."""
-        await self._coordinator.set_variable("v01035", 10, "{:d}")
+        await self._coordinator.set_variable(
+            VARIABLE_BYPASS_EXTRACT_AIR_TEMPERATURE, BYPASS_TEMPERATURE_LOW
+        )
 
     async def bypass_close(self) -> None:
         """Closes the bypass by setting high temperature."""
-        await self._coordinator.set_variable("v01035", 40, "{:d}")
+        await self._coordinator.set_variable(
+            VARIABLE_BYPASS_EXTRACT_AIR_TEMPERATURE, BYPASS_TEMPERATURE_HIGH
+        )
 
     @classmethod
     def speed_to_fan_stage(cls, speed: str) -> int:
@@ -410,7 +420,7 @@ async def async_setup_entry(
     async def handle_bypass_close(call: ServiceCall) -> None:  # noqa: ARG001
         await fan.bypass_close()
 
-    hass.services.async_register(DOMAIN, "bypass_open", handle_bypass_open)
-    hass.services.async_register(DOMAIN, "bypass_close", handle_bypass_close)
+    hass.services.async_register(DOMAIN, SERVICE_OPEN_BYPASS, handle_bypass_open)
+    hass.services.async_register(DOMAIN, SERVICE_CLOSE_BYPASS, handle_bypass_close)
 
     _LOGGER.info("Setting up Helios EasyControls fan device completed.")
