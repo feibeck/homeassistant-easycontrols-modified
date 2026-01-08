@@ -1,6 +1,5 @@
 {
   "name": "Modified Helios EasyControls Modbus TCP/IP integration",
   "render_readme": true,
-  "zip_release": true,
-  "filename": "homeassistant-easycontrols.zip"
+  "zip_release": false
 }
