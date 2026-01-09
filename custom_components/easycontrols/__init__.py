@@ -63,7 +63,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
 
     hass.async_create_task(
         hass.config_entries.async_forward_entry_setups(
-            config_entry, ("fan", "sensor", "binary_sensor", "button")
+            config_entry, ("fan", "sensor", "binary_sensor", "number", "button")
         )
     )
 
