@@ -16,7 +16,7 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from custom_components.easycontrols import get_coordinator
-from custom_components.easycontrols.const import VARIABLE_ERROR_DELETE
+from custom_components.easycontrols.const import VARIABLE_RESET_FLAG
 from custom_components.easycontrols.coordinator import EasyControlsDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ class EasyControlsButton(ButtonEntity):
     async def async_press(self: Self) -> None:
         """Handle button press to reset errors."""
         _LOGGER.info("Resetting errors on device %s.", self._coordinator.device_name)
-        success = await self._coordinator.set_variable(VARIABLE_ERROR_DELETE, 1)
+        success = await self._coordinator.set_variable(VARIABLE_RESET_FLAG, 1)
         if not success:
             _LOGGER.warning("Failed to reset errors on device %s.", self._coordinator.device_name)
 
