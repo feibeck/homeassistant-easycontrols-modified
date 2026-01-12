@@ -1,6 +1,7 @@
 """The number module for Helios Easy Controls integration."""
 
 from logging import getLogger
+from typing import Self
 
 from homeassistant.components.number import NumberEntity, NumberEntityDescription
 from homeassistant.config_entries import ConfigEntry
@@ -9,7 +10,6 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry
 from homeassistant.helpers.entity import DeviceInfo, EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from typing_extensions import Self
 
 from custom_components.easycontrols import get_coordinator
 from custom_components.easycontrols.const import (
@@ -42,6 +42,7 @@ class EasyControlsNumberEntity(NumberEntity):
             coordinator: The coordinator instance.
             variable: The ModBus variable to get and set by the number entity.
             description: The entity description of the number.
+
         """
         super().__init__()
         self.entity_description = description
